@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Stock Receipts</h2>
+
+    <a href="{% url 'create_stock_receipt' %}" class="btn btn-success">
+        Add Stock Receipt
+    </a>
+</div>
+
+<table class="table table-bordered table-striped shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>Product</th>
+            <th>Supplier</th>
+            <th>Quantity</th>
+            <th>Unit Cost</th>
+            <th>Total Due</th>
+            <th>Paid?</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for receipt in receipts %}
+        <tr>
+            <td>{{ receipt.product.product_name }}</td>
+            <td>{{ receipt.supplier_name }}</td>
+            <td>{{ receipt.quantity_received }}</td>
+            <td>{{ receipt.unit_cost }}</td>
+            <td>{{ receipt.total_amount_due }}</td>
+            <td>
+                {% if receipt.supplier_paid %}
+                    <span class="badge bg-success">Paid</span>
+                {% else %}
+                    <span class="badge bg-danger">Not Paid</span>
+                {% endif %}
+            </td>
+            <td>{{ receipt.date_received|date:"j F Y, H:i" }}</td>
+            <td>
+                <a href="{% url 'goods_received_note' receipt.id %}" class="btn btn-dark btn-sm">GRN</a>
+                <a href="{% url 'edit_stock_receipt' receipt.id %}" class="btn btn-primary btn-sm">Edit</a>
+                <a href="{% url 'delete_stock_receipt' receipt.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8" class="text-center">No stock receipts found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
