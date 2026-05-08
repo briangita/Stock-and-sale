@@ -3,12 +3,13 @@
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Stock Receipts</h2>
-
-    <a href="{% url 'create_stock_receipt' %}" class="btn btn-success">
-        Add Stock Receipt
-    </a>
+    <h2>Stock Received</h2>
 </div>
+
+<div class="d-flex justify-content-end gap-2 mb-3">
+            <a href="{% url 'create_stock_receipt' %}" class="btn btn-success">Record Stock Received</a>
+            <a href="{% url 'stock_report' %}" class="btn btn-success">Stock Report</a>
+        </div>
 
 <table class="table table-bordered table-striped shadow-sm">
     <thead class="table-dark">

@@ -35,4 +35,5 @@ urlpatterns = [
     path("sales/<int:sale_id>/edit/", views.edit_sale, name="edit_sale"),
     path("sales/<int:sale_id>/delete/", views.delete_sale, name="delete_sale"),
     path("sales/report/", views.sales_report, name="sales_report"),
+    path("sales/report/export/", views.export_sales_report_excel, name="export_sales_report_excel"),
 ]

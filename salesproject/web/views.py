@@ -3,11 +3,21 @@ from web.models import Category, Product, Sales
 from django.db import IntegrityError
 from stock.models import StockReceipt
 from django.db.models import Sum
+from django.http import HttpResponse
+from openpyxl import Workbook
 
 # Create your views here
 def home(request):
     sales = Sales.objects.all().order_by("-sale_date")
-    return render(request, "home.html", {"sales": sales})
+
+    total_sales_value = sales.aggregate(
+        total=Sum("total_price")
+    )["total"] or 0
+
+    return render(request, "home.html", {
+        "sales": sales,
+        "total_sales_value": total_sales_value
+    })
 
 
 def category_list(request):
@@ -204,3 +214,46 @@ def sales_report(request):
         "total_sales_amount": total_sales_amount,
         "total_quantity_sold": total_quantity_sold,
     })
+    
+def export_sales_report_excel(request):
+    sales = Sales.objects.all().order_by("-sale_date")
+
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    if start_date and start_date != "None":
+        sales = sales.filter(sale_date__date__gte=start_date)
+
+    if end_date and end_date != "None":
+        sales = sales.filter(sale_date__date__lte=end_date)
+
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = "Sales Report"
+
+    worksheet.append([
+        "Product",
+        "Category",
+        "Unit Price",
+        "Quantity",
+        "Total Price",
+        "Sale Date"
+    ])
+
+    for sale in sales:
+        worksheet.append([
+            sale.product_name.product_name,
+            sale.product_name.category_name.category_name,
+            sale.product_name.unit_price,
+            sale.quantity,
+            sale.total_price,
+            sale.sale_date.strftime("%Y-%m-%d %H:%M"),
+        ])
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = 'attachment; filename="sales_report.xlsx"'
+
+    workbook.save(response)
+    return response

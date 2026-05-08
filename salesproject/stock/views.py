@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum
 from web.models import Product, Sales
 from .models import StockReceipt
+from django.http import HttpResponse
+from openpyxl import Workbook
 
 
 
@@ -108,3 +110,56 @@ def stock_report(request):
     return render(request, "stock_report.html", {
         "report": report
     })
+
+def export_stock_report_excel(request):
+    products = Product.objects.all()
+
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = "Stock Report"
+
+    worksheet.append([
+        "Product",
+        "Category",
+        "Total Received",
+        "Total Sold",
+        "Current Stock",
+        "Status"
+    ])
+
+    for product in products:
+        total_received = StockReceipt.objects.filter(
+            product=product
+        ).aggregate(total=Sum("quantity_received"))["total"] or 0
+
+        total_sold = Sales.objects.filter(
+            product_name=product
+        ).aggregate(total=Sum("quantity"))["total"] or 0
+
+        current_stock = total_received - total_sold
+
+        if current_stock <= 5:
+            status = "Low Stock"
+        elif current_stock <= 20:
+            status = "Medium Stock"
+        else:
+            status = "High Stock"
+
+        worksheet.append([
+            product.product_name,
+            product.category_name.category_name,
+            total_received,
+            total_sold,
+            current_stock,
+            status
+        ])
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    response["Content-Disposition"] = 'attachment; filename="stock_report.xlsx"'
+
+    workbook.save(response)
+
+    return response

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block content %}
 
@@ -16,9 +17,10 @@
             <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
         </div>
 
-        <div class="col-md-4 d-flex align-items-end">
+        <div class="col-md-4 d-flex align-items-end gap-2">
             <button type="submit" class="btn btn-primary me-2">Filter</button>
             <a href="{% url 'sales_report' %}" class="btn btn-secondary">Reset</a>
+            <a href="{% url 'export_sales_report_excel' %}?start_date={{ start_date|default:'' }}&end_date={{ end_date|default:'' }}" class="btn btn-success">Export Excel</a>
         </div>
     </div>
 </form>
@@ -28,7 +30,7 @@
         <div class="card shadow-sm">
             <div class="card-body">
                 <h5>Total Quantity Sold</h5>
-                <h3>{{ total_quantity_sold }}</h3>
+                <h3>{{ total_quantity_sold|floatformat:2|intcomma }}</h3>
             </div>
         </div>
     </div>
@@ -37,7 +39,7 @@
         <div class="card shadow-sm">
             <div class="card-body">
                 <h5>Total Sales Amount</h5>
-                <h3>{{ total_sales_amount }}</h3>
+                <h3>{{ total_sales_amount|floatformat:2|intcomma }}</h3>
             </div>
         </div>
     </div>
@@ -60,9 +62,9 @@
         <tr>
             <td>{{ sale.product_name.product_name }}</td>
             <td>{{ sale.product_name.category_name.category_name }}</td>
-            <td>{{ sale.product_name.unit_price }}</td>
+            <td>{{ sale.product_name.unit_price|floatformat:2|intcomma }}</td>
             <td>{{ sale.quantity }}</td>
-            <td>{{ sale.total_price }}</td>
+            <td>{{ sale.total_price|floatformat:2|intcomma }}</td>
             <td>{{ sale.sale_date|date:"j F Y, H:i" }}</td>
         </tr>
         {% empty %}
