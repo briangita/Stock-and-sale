@@ -19,7 +19,6 @@ def home(request):
         "total_sales_value": total_sales_value
     })
 
-
 def category_list(request):
     categories = Category.objects.all()
     return render(request, "category_list.html", {"categories": categories})
@@ -69,6 +68,16 @@ def create_product(request):
         "categories": categories
     })
 
+def delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == "POST":
+        product.delete()
+        return redirect("product_list")
+
+    return render(request, "delete_product.html", {
+        "product": product
+    })
 
 
 def create_sale(request):

@@ -4,6 +4,7 @@ from web.models import Product, Sales
 from .models import StockReceipt
 from django.http import HttpResponse
 from openpyxl import Workbook
+from django.db import IntegrityError
 
 
 

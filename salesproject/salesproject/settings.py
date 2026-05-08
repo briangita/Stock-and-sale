@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'web',
     'stock',
+    'scheme',
 ]
 
 MIDDLEWARE = [
